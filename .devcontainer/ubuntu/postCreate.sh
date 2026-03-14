@@ -19,9 +19,6 @@ cat > ~/.claude.json <<EOF
 }
 EOF
 
-curl -fsSL https://claude.ai/install.sh | bash
 
-curl -fsSL https://bun.sh/install | bash
-export PATH="$HOME/.bun/bin:$PATH"
-
-bunx --yes @kamranahmedse/claude-statusline
+sudo npm install -g npm
+npx --yes @kamranahmedse/claude-statusline

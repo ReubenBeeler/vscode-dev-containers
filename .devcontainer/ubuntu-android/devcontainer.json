@@ -1,0 +1,25 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
+{
+	"name": "Ubuntu Android",
+	"image": "mcr.microsoft.com/devcontainers/base:noble",
+	"features": {
+		"ghcr.io/dhoeric/features/act:1": {},
+		"ghcr.io/hwaien/devcontainer-features/match-host-time-zone": {}
+	},
+	"mounts": [
+		"source=${localEnv:HOME}/.claude/.credentials.json,target=/tmp/claude-credentials.json,type=bind,readonly",
+		// Persist the ADB RSA key across container rebuilds so the phone doesn't need to re-authorize every time.
+		"source=${localEnv:HOME}/.android,target=/home/vscode/.android,type=bind,consistency=cached"
+	],
+	// --network=host: the container shares the host's network namespace.
+	// ADB forward ports on the host are accessible at localhost inside the
+	// container, so Flutter VM Service / hot reload work without extra config.
+	"runArgs": [
+		"--network=host",
+		"--device=/dev/kvm"
+	],
+	// lifecycle scripts
+	"initializeCommand": "bash .devcontainer/ubuntu-android/hostConfig.sh",
+	"postCreateCommand": "bash .devcontainer/ubuntu-android/postCreate.sh"
+}
