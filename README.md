@@ -4,7 +4,7 @@ Seamless sharing and version-control for you dev containers.
 ## Installation
 `.devcontainer/` should not exist yet. This repo is intended to be a submodule at `.devcontainer/` and contain all dev containers for a project.
 ```bash
-git submodule add git@github.com:ReubenBeeler/vscode-dev-container-templates.git .devcontainer/
+git submodule add git@github.com:ReubenBeeler/vscode-dev-containers.git .devcontainer/
 ```
 
 ## Notes
