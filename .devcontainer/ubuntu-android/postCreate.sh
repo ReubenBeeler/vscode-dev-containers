@@ -88,11 +88,19 @@ flutter doctor --android-licenses --no-version-check < /dev/null || true
 flutter doctor --no-version-check || true
 
 
+# ┌─────┐
+# │ Bun │
+# └─────┘
+
+curl -fsSL https://bun.sh/install | bash	# Auto-adds bun to PATH in ~/.bashrc
+export PATH="$HOME/.bun/bin:$PATH"			# Add bun to PATH for this current shell
+
 # ┌─────────────┐
 # │ Claude Code │
 # └─────────────┘
 
-# setup config
+## Config
+
 mkdir -p ~/.claude
 cp /tmp/claude-credentials.json ~/.claude/.credentials.json
 
@@ -110,15 +118,11 @@ cat > ~/.claude.json <<EOF
 }
 EOF
 
+## Install Claude Code
+
 curl -fsSL https://claude.ai/install.sh | bash
 
-curl -fsSL https://bun.sh/install | bash
-export PATH="$HOME/.bun/bin:$PATH"
-
-# The bun installer only adds to .bashrc; persist to .profile for login shells
-# so that bunx is available when Claude Code spawns the MCP server.
-BUN_PATH_LINE='export PATH="$HOME/.bun/bin:$PATH"'
-grep -qxF "$BUN_PATH_LINE" ~/.profile || echo "$BUN_PATH_LINE" >> ~/.profile
+## Claude Code Extensions
 
 bunx --yes @kamranahmedse/claude-statusline
 

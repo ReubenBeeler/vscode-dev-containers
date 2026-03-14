@@ -2,6 +2,19 @@
 
 set -e
 
+# ┌─────┐
+# │ Bun │
+# └─────┘
+
+curl -fsSL https://bun.sh/install | bash	# Auto-adds bun to PATH in ~/.bashrc
+export PATH="$HOME/.bun/bin:$PATH"			# Add bun to PATH for this current shell
+
+# ┌─────────────┐
+# │ Claude Code │
+# └─────────────┘
+
+## Config
+
 mkdir -p ~/.claude
 cp /tmp/claude-credentials.json ~/.claude/.credentials.json
 
@@ -19,6 +32,13 @@ cat > ~/.claude.json <<EOF
 }
 EOF
 
+## Install Claude Code
 
-sudo npm install -g npm
-npx --yes @kamranahmedse/claude-statusline
+curl -fsSL https://claude.ai/install.sh | bash
+
+## Claude Code Extensions
+
+bunx --yes @kamranahmedse/claude-statusline
+
+# claude-in-mobile MCP server (https://github.com/AlexGladkov/claude-in-mobile)
+claude mcp add --scope user --transport stdio mobile -- bunx -y claude-in-mobile

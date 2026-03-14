@@ -5,8 +5,7 @@
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/base:noble",
 	"features": {
-		"ghcr.io/hwaien/devcontainer-features/match-host-time-zone": {},
-		"ghcr.io/siri404/devcontainer-ai-features/claude-code:1": {}
+		"ghcr.io/hwaien/devcontainer-features/match-host-time-zone": {}
 	},
 	"mounts": [
 		"source=${localEnv:HOME}/.claude/.credentials.json,target=/tmp/claude-credentials.json,type=bind,readonly"
