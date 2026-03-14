@@ -1,5 +1,5 @@
 # Dev Containers
-Seamless sharing and version-control for you dev containers.
+Seamless sharing and version-control for your dev containers.
 
 ## Installation
 `.devcontainer/` should not exist yet. This repo is intended to be a submodule at `.devcontainer/` and contain all dev containers for a project.
