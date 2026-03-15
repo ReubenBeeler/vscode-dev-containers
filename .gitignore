@@ -1,3 +1,9 @@
 .*
 !.git*
 !.devcontainer
+
+# generated from .devcontainer testing...
+bun.lock
+CLAUDE.md
+node_modules/
+package.json

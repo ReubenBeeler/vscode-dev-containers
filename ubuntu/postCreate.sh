@@ -54,11 +54,15 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 ## Claude Code Extensions
 
-# agent orchestration
-bunx ruflo init
-
-# status line
-bunx --yes @kamranahmedse/claude-statusline
+# ruflo – agent orchestration
+bunx ruflo init < <(echo No) || true # don't overwrite config files if they already exist
+bunx ruflo daemon start
+bunx ruflo memory configure --backend hybrid
+bunx ruflo memory init || true		 # it might fail if one already exists, which is fine
+claude mcp add claude-flow bunx @claude-flow/cli@v3alpha mcp start
+bun install -D typescript
+bun install agentic-flow@latest
+bunx ruflo doctor
 
 # mobile dev MCP server (https://github.com/AlexGladkov/claude-in-mobile)
 claude mcp add --scope user --transport stdio mobile -- bunx -y claude-in-mobile
