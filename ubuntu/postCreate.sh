@@ -3,6 +3,14 @@
 set -e
 
 # ┌─────┐
+# │ Act │ (run GitHub Actions locally)
+# └─────┘
+
+curl -fsSL https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+sudo mv bin/act /usr/local/bin
+rmdir bin
+
+# ┌─────┐
 # │ Bun │
 # └─────┘
 
@@ -32,7 +40,7 @@ fnm install 20
 ## Config
 
 mkdir -p ~/.claude
-cp /tmp/claude-credentials.json ~/.claude/.credentials.json
+cp ~/claude-credentials.json ~/.claude/.credentials.json
 
 # sudo apt install -y moreutils
 # jq '. + {"hasCompletedOnboarding": true}' ~/.claude.json | sponge ~/.claude.json

@@ -5,10 +5,11 @@
 	"image": "mcr.microsoft.com/devcontainers/base:noble",
 	"features": {
 		"ghcr.io/dhoeric/features/act:1": {},
-		"ghcr.io/hwaien/devcontainer-features/match-host-time-zone": {}
+		"ghcr.io/hwaien/devcontainer-features/match-host-time-zone": {},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
 	},
 	"mounts": [
-		"source=${localEnv:HOME}/.claude/.credentials.json,target=/tmp/claude-credentials.json,type=bind,readonly",
+		"source=${localEnv:HOME}/.claude/.credentials.json,target=/home/vscode/claude-credentials.json,type=bind,readonly",
 		// Persist the ADB RSA key across container rebuilds so the phone doesn't need to re-authorize every time.
 		"source=${localEnv:HOME}/.android,target=/home/vscode/.android,type=bind,consistency=cached"
 	],
