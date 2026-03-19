@@ -60,6 +60,10 @@ sdkmanager \
 avdmanager list avd -c | grep -qx "Pixel_API_36" || \
   echo "no" | avdmanager create avd -n "Pixel_API_36" -k "system-images;android-36;google_apis;x86_64" --device "pixel_6"
 
+sed -i 's/^hw.ramSize = .*/hw.ramSize = 4096M/' ~/.android/avd/Pixel_API_36.avd/config.ini
+sed -i 's/^hw.gpu.mode = .*/hw.gpu.mode = host/' ~/.android/avd/Pixel_API_36.avd/config.ini
+sed -i 's/^hw.gpu.enabled = .*/hw.gpu.enabled = yes/' ~/.android/avd/Pixel_API_36.avd/config.ini
+
 # Persist Android SDK env for all future shells
 ANDROID_ENV_BLOCK='# Android SDK
 export ANDROID_HOME="$HOME/android-sdk"
