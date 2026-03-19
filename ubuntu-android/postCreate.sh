@@ -137,6 +137,8 @@ cat > ~/.claude.json <<EOF
 }
 EOF
 
+echo 'claude --permission-mode bypassPermissions' >> ~/.bash_history
+
 ## Install Claude Code
 
 curl -fsSL https://claude.ai/install.sh | bash
