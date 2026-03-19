@@ -97,9 +97,21 @@ flutter doctor --no-version-check || true
 # │ Bun │
 # └─────┘
 
-curl -fsSL https://bun.sh/install | bash	# Auto-adds bun to PATH in ~/.bashrc
+curl -fsSL https://bun.sh/install | bash
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# ┌─────┐
+# │ fnm │
+# └─────┘
+
+curl -fsSL https://fnm.vercel.app/install | bash
+
+FNM_PATH="/home/vscode/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "$(fnm env --shell bash)"
+fi
 
 # ┌─────────────┐
 # │ Claude Code │
