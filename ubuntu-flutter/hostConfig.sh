@@ -33,3 +33,12 @@ fi
 echo "==> Starting host ADB server..."
 adb kill-server 2>/dev/null || true
 adb start-server
+
+# ┌─────────────────────────────┐
+# │ Stage host files for copy   │
+# └─────────────────────────────┘
+
+STATUSLINE="$HOME/.claude/statusline.sh"
+if [ -f "$STATUSLINE" ]; then
+  cp "$STATUSLINE" .devcontainer/ubuntu-flutter/statusline.sh
+fi

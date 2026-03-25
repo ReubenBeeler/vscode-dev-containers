@@ -21,7 +21,15 @@ sudo apt-get update -y && sudo apt-get upgrade -y
 sudo apt-get install -y \
   curl git unzip xz-utils zip \
   android-sdk-platform-tools-common \
-  openjdk-17-jdk
+  openjdk-17-jdk \
+  clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-14-dev \
+  mesa-utils xvfb
+
+# Google Chrome (needed for Flutter web development)
+curl -fsSL -o /tmp/google-chrome.deb \
+  https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo apt-get install -y /tmp/google-chrome.deb
+rm /tmp/google-chrome.deb
 
 # Grant the container user access to KVM for hardware-accelerated emulation.
 # /dev/kvm is passed in via --device=/dev/kvm but its owning group (numeric)
@@ -30,6 +38,19 @@ sudo apt-get install -y \
 # not the current shell running postCreate. Set world read/write so the
 # emulator can use KVM immediately without requiring a re-login.
 sudo chmod 666 /dev/kvm
+
+# Grant access to GPU render nodes so eglinfo (used by flutter doctor) can
+# query driver information. The host DRI devices are visible via --network=host
+# but their owning groups don't map inside the container.
+if [ -d /dev/dri ]; then
+  sudo chmod 666 /dev/dri/* 2>/dev/null || true
+fi
+
+# Start a virtual X server so eglinfo's X11 platform probe doesn't hang
+# (no display server in a headless container). Xvfb also enables running
+# Flutter Linux desktop apps headlessly for testing.
+Xvfb :99 -screen 0 1024x768x24 &>/dev/null &
+export DISPLAY=:99
 
 # Android SDK (cmdline-tools → sdkmanager → platform + build-tools)
 ANDROID_SDK_ROOT="$HOME/android-sdk"
@@ -72,6 +93,16 @@ export PATH="$ANDROID_SDK_ROOT/emulator:$ANDROID_SDK_ROOT/cmdline-tools/latest/b
 grep -qF 'ANDROID_SDK_ROOT' ~/.bashrc  || printf '\n%s\n' "$ANDROID_ENV_BLOCK" >> ~/.bashrc
 grep -qF 'ANDROID_SDK_ROOT' ~/.profile || printf '\n%s\n' "$ANDROID_ENV_BLOCK" >> ~/.profile
 
+# Ensure Xvfb is running and DISPLAY is set in future shells so eglinfo
+# (and Flutter Linux desktop apps) work in this headless container.
+XVFB_ENV_BLOCK='# Virtual X server for headless Flutter Linux desktop
+if ! pgrep -x Xvfb >/dev/null 2>&1; then
+  Xvfb :99 -screen 0 1024x768x24 &>/dev/null &
+fi
+export DISPLAY=:99'
+grep -qF 'Xvfb' ~/.bashrc  || printf '\n%s\n' "$XVFB_ENV_BLOCK" >> ~/.bashrc
+grep -qF 'Xvfb' ~/.profile || printf '\n%s\n' "$XVFB_ENV_BLOCK" >> ~/.profile
+
 # ┌─────────┐
 # │ Flutter │
 # └─────────┘
@@ -91,7 +122,7 @@ grep -qxF "$FLUTTER_PATH_LINE" ~/.profile || echo "$FLUTTER_PATH_LINE" >> ~/.pro
 export PATH="$HOME/flutter/bin:$PATH"
 
 # Wire Flutter to the SDK we just installed
-flutter config --android-sdk "$ANDROID_SDK_ROOT" --no-analytics
+flutter config --android-sdk "$ANDROID_SDK_ROOT" --enable-linux-desktop --no-analytics
 
 # Accept Android licenses via Flutter and run a sanity check
 flutter doctor --android-licenses --no-version-check < /dev/null || true
@@ -127,6 +158,31 @@ fi
 sudo chown $USER ~/.claude
 sudo chgrp $USER ~/.claude
 
+# Copy statusline.sh staged by hostConfig.sh into the container
+if [ -f .devcontainer/ubuntu-flutter/statusline.sh ]; then
+  cp .devcontainer/ubuntu-flutter/statusline.sh ~/.claude/statusline.sh
+  rm .devcontainer/ubuntu-flutter/statusline.sh
+fi
+
+# Configure statusline in user-level settings
+if [ -f ~/.claude/statusline.sh ]; then
+  mkdir -p ~/.claude
+  SETTINGS=~/.claude/settings.json
+  if [ -f "$SETTINGS" ]; then
+    # Merge statusLine into existing settings
+    jq '. + {"statusLine": {"type": "command", "command": "bash ~/.claude/statusline.sh"}}' "$SETTINGS" > "$SETTINGS.tmp" && mv "$SETTINGS.tmp" "$SETTINGS"
+  else
+    cat > "$SETTINGS" <<'EOSETTINGS'
+{
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline.sh"
+  }
+}
+EOSETTINGS
+  fi
+fi
+
 # sudo apt install -y moreutils
 # jq '. + {"hasCompletedOnboarding": true}' ~/.claude.json | sponge ~/.claude.json
 
@@ -148,8 +204,6 @@ echo 'claude --permission-mode bypassPermissions' >> ~/.bash_history
 curl -fsSL https://claude.ai/install.sh | bash
 
 ## Claude Code Extensions
-
-bunx --yes @kamranahmedse/claude-statusline
 
 # mobile dev MCP server (https://github.com/AlexGladkov/claude-in-mobile)
 claude mcp add --scope user --transport stdio mobile -- bunx -y claude-in-mobile

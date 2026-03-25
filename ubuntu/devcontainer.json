@@ -11,6 +11,7 @@
 	"mounts": [
 		"source=${localEnv:HOME}/.claude/.credentials.json,target=/home/vscode/.claude/.credentials.json,type=bind,consistency=cached"
 	],
+	"initializeCommand": "bash .devcontainer/ubuntu/hostConfig.sh",
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

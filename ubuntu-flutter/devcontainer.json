@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
-	"name": "Ubuntu Android",
+	"name": "Ubuntu Flutter",
 	"image": "mcr.microsoft.com/devcontainers/base:noble",
 	"features": {
 		"ghcr.io/hwaien/devcontainer-features/match-host-time-zone": {},
@@ -20,6 +20,6 @@
 		"--device=/dev/kvm"
 	],
 	// lifecycle scripts
-	"initializeCommand": "bash .devcontainer/ubuntu-android/hostConfig.sh",
-	"postCreateCommand": "bash .devcontainer/ubuntu-android/postCreate.sh"
+	"initializeCommand": "bash .devcontainer/ubuntu-flutter/hostConfig.sh",
+	"postCreateCommand": "bash .devcontainer/ubuntu-flutter/postCreate.sh"
 }
