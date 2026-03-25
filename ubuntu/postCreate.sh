@@ -63,7 +63,7 @@ EOSETTINGS
   fi
 fi
 
-# sudo apt install -y moreutils
+# sudo apt install -y moreutils > /dev/null
 # jq '. + {"hasCompletedOnboarding": true}' ~/.claude.json | sponge ~/.claude.json
 
 cat > ~/.claude.json <<EOF

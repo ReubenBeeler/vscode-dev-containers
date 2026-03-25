@@ -11,25 +11,20 @@ curl -fsSL https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo
 # │ Android │
 # └─────────┘
 
-sudo apt-get update -y && sudo apt-get upgrade -y
+sudo apt-get update -y > /dev/null
+sudo apt-get upgrade -y > /dev/null
 
 # Core utilities + udev rules + Java (required by Android build tools)
 # NOTE: Do NOT install the 'adb' apt package here. The SDK's platform-tools
 # (installed via sdkmanager below) provides adb. A system adb with a different
 # version will kill and restart the ADB server locally, breaking the connection
 # to the host's server (shared via --network=host).
-sudo apt-get install -y \
+sudo apt-get install -y > /dev/null \
   curl git unzip xz-utils zip \
   android-sdk-platform-tools-common \
   openjdk-17-jdk \
   clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-14-dev \
   mesa-utils xvfb
-
-# Google Chrome (needed for Flutter web development)
-curl -fsSL -o /tmp/google-chrome.deb \
-  https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo apt-get install -y /tmp/google-chrome.deb
-rm /tmp/google-chrome.deb
 
 # Grant the container user access to KVM for hardware-accelerated emulation.
 # /dev/kvm is passed in via --device=/dev/kvm but its owning group (numeric)
@@ -103,12 +98,22 @@ export DISPLAY=:99'
 grep -qF 'Xvfb' ~/.bashrc  || printf '\n%s\n' "$XVFB_ENV_BLOCK" >> ~/.bashrc
 grep -qF 'Xvfb' ~/.profile || printf '\n%s\n' "$XVFB_ENV_BLOCK" >> ~/.profile
 
+# ┌────────┐
+# │ Chrome │
+# └────────┘
+
+_tmp=$(mktemp --suffix='.deb')
+curl -fsSL -o "$_tmp" https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo apt-get install -y "$_tmp" > /dev/null
+rm "$_tmp"
+unset "$_tmp"
+
 # ┌─────────┐
 # │ Flutter │
 # └─────────┘
 
 # Flutter SDK
-FLUTTER_TAR=$(mktemp)
+FLUTTER_TAR=$(mktemp --suffix='.tar')
 curl -fsSL -o "$FLUTTER_TAR" \
   "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.41.4-stable.tar.xz"
 tar -xf "$FLUTTER_TAR" -C "$HOME"
@@ -183,7 +188,7 @@ EOSETTINGS
   fi
 fi
 
-# sudo apt install -y moreutils
+# sudo apt install -y moreutils > /dev/null
 # jq '. + {"hasCompletedOnboarding": true}' ~/.claude.json | sponge ~/.claude.json
 
 cat > ~/.claude.json <<EOF
