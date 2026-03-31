@@ -8,6 +8,16 @@ set -e
 
 curl -fsSL https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash -s -- -b /usr/local/bin
 
+# ┌──────────┐
+# │ Lefthook │
+# └──────────┘
+
+LEFTHOOK_VERSION=$(curl -fsSL https://api.github.com/repos/evilmartians/lefthook/releases/latest | grep -o '"tag_name": "v[^"]*"' | grep -o '[0-9][^"]*')
+LEFTHOOK_DEB=$(mktemp)
+curl -fsSL -o "$LEFTHOOK_DEB" "https://github.com/evilmartians/lefthook/releases/download/v${LEFTHOOK_VERSION}/lefthook_${LEFTHOOK_VERSION}_amd64.deb"
+sudo dpkg -i "$LEFTHOOK_DEB"
+rm "$LEFTHOOK_DEB"
+
 # ┌─────┐
 # │ Bun │
 # └─────┘

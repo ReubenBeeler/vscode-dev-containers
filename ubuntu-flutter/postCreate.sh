@@ -7,6 +7,16 @@ set -e
 
 curl -fsSL https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash -s -- -b /usr/local/bin
 
+# ┌──────────┐
+# │ Lefthook │
+# └──────────┘
+
+LEFTHOOK_VERSION=$(curl -fsSL https://api.github.com/repos/evilmartians/lefthook/releases/latest | grep -o '"tag_name": "v[^"]*"' | grep -o '[0-9][^"]*')
+LEFTHOOK_DEB=$(mktemp)
+curl -fsSL -o "$LEFTHOOK_DEB" "https://github.com/evilmartians/lefthook/releases/download/v${LEFTHOOK_VERSION}/lefthook_${LEFTHOOK_VERSION}_amd64.deb"
+sudo dpkg -i "$LEFTHOOK_DEB"
+rm "$LEFTHOOK_DEB"
+
 # ┌─────────┐
 # │ Android │
 # └─────────┘
@@ -21,10 +31,8 @@ sudo apt-get upgrade -y > /dev/null
 # to the host's server (shared via --network=host).
 sudo apt-get install -y > /dev/null \
   curl git unzip xz-utils zip \
-  android-sdk-platform-tools-common \
-  openjdk-17-jdk \
-  clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-14-dev \
-  mesa-utils xvfb
+  android-sdk-platform-tools-common openjdk-17-jdk libpulse0 \
+  clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-14-dev mesa-utils xvfb
 
 # Grant the container user access to KVM for hardware-accelerated emulation.
 # /dev/kvm is passed in via --device=/dev/kvm but its owning group (numeric)
@@ -134,6 +142,19 @@ flutter config --android-sdk "$ANDROID_SDK_ROOT" --enable-linux-desktop --no-ana
 # Accept Android licenses via Flutter and run a sanity check
 flutter doctor --android-licenses --no-version-check < /dev/null || true
 flutter doctor --no-version-check || true
+
+dart --disable-analytics
+
+# ┌──────────┐
+# │ Firebase │
+# └──────────┘
+
+curl -sL https://firebase.tools | bash
+dart pub global activate flutterfire_cli
+_export='export PATH="$PATH":"$HOME/.pub-cache/bin"'
+eval $_export
+echo "$_export" >> ~/.bashrc
+unset _export
 
 # ┌─────┐
 # │ Bun │
