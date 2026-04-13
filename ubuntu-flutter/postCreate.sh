@@ -24,15 +24,20 @@ rm "$LEFTHOOK_DEB"
 sudo apt-get update -y > /dev/null
 sudo apt-get upgrade -y > /dev/null
 
+# install sponge
+sudo apt install -y moreutils > /dev/null
+
 # Core utilities + udev rules + Java (required by Android build tools)
 # NOTE: Do NOT install the 'adb' apt package here. The SDK's platform-tools
 # (installed via sdkmanager below) provides adb. A system adb with a different
 # version will kill and restart the ADB server locally, breaking the connection
 # to the host's server (shared via --network=host).
 sudo apt-get install -y > /dev/null \
-  curl git unzip xz-utils zip \
-  android-sdk-platform-tools-common openjdk-17-jdk libpulse0 \
-  clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-14-dev mesa-utils xvfb
+	curl git unzip xz-utils zip \
+	android-sdk-platform-tools-common \
+	openjdk-17-jdk libpulse0 \
+	clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-14-dev \
+	mesa-utils xvfb
 
 # Grant the container user access to KVM for hardware-accelerated emulation.
 # /dev/kvm is passed in via --device=/dev/kvm but its owning group (numeric)
@@ -46,7 +51,7 @@ sudo chmod 666 /dev/kvm
 # query driver information. The host DRI devices are visible via --network=host
 # but their owning groups don't map inside the container.
 if [ -d /dev/dri ]; then
-  sudo chmod 666 /dev/dri/* 2>/dev/null || true
+	sudo chmod 666 /dev/dri/* 2>/dev/null || true
 fi
 
 # Start a virtual X server so eglinfo's X11 platform probe doesn't hang
@@ -60,7 +65,7 @@ ANDROID_SDK_ROOT="$HOME/android-sdk"
 CMDLINE_TOOLS_ZIP="cmdline-tools.zip"
 # commandlinetools-linux 11076708 = SDK tools 2024.* (latest stable as of Flutter 3.x)
 curl -fsSL -o "$CMDLINE_TOOLS_ZIP" \
-  "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip"
+	"https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip"
 mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
 unzip -q "$CMDLINE_TOOLS_ZIP" -d "$ANDROID_SDK_ROOT/cmdline-tools"
 # sdkmanager requires the directory to be named "latest"
@@ -73,16 +78,16 @@ export PATH="$ANDROID_SDK_ROOT/emulator:$ANDROID_SDK_ROOT/cmdline-tools/latest/b
 # Accept all SDK licenses non-interactively, then install required components
 yes | sdkmanager --licenses 2>/dev/null >/dev/null || true
 sdkmanager \
-  "platform-tools" \
-  "build-tools;36.0.0" \
-  "build-tools;28.0.3" \
-  "platforms;android-36" \
-  "emulator" \
-  "system-images;android-36;google_apis;x86_64"
+	"platform-tools" \
+	"build-tools;36.0.0" \
+	"build-tools;28.0.3" \
+	"platforms;android-36" \
+	"emulator" \
+	"system-images;android-36;google_apis;x86_64"
 
 # Create a default AVD for the emulator
 avdmanager list avd -c | grep -qx "Pixel_API_36" || \
-  echo "no" | avdmanager create avd -n "Pixel_API_36" -k "system-images;android-36;google_apis;x86_64" --device "pixel_6"
+	echo "no" | avdmanager create avd -n "Pixel_API_36" -k "system-images;android-36;google_apis;x86_64" --device "pixel_6"
 
 sed -i 's/^hw.ramSize = .*/hw.ramSize = 4096M/' ~/.android/avd/Pixel_API_36.avd/config.ini
 sed -i 's/^hw.gpu.mode = .*/hw.gpu.mode = host/' ~/.android/avd/Pixel_API_36.avd/config.ini
@@ -100,7 +105,7 @@ grep -qF 'ANDROID_SDK_ROOT' ~/.profile || printf '\n%s\n' "$ANDROID_ENV_BLOCK" >
 # (and Flutter Linux desktop apps) work in this headless container.
 XVFB_ENV_BLOCK='# Virtual X server for headless Flutter Linux desktop
 if ! pgrep -x Xvfb >/dev/null 2>&1; then
-  Xvfb :99 -screen 0 1024x768x24 &>/dev/null &
+	Xvfb :99 -screen 0 1024x768x24 &>/dev/null &
 fi
 export DISPLAY=:99'
 grep -qF 'Xvfb' ~/.bashrc  || printf '\n%s\n' "$XVFB_ENV_BLOCK" >> ~/.bashrc
@@ -123,7 +128,7 @@ unset _tmp
 # Flutter SDK
 FLUTTER_TAR=$(mktemp --suffix='.tar')
 curl -fsSL -o "$FLUTTER_TAR" \
-  "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.41.4-stable.tar.xz"
+	"https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.41.4-stable.tar.xz"
 tar -xf "$FLUTTER_TAR" -C "$HOME"
 rm "$FLUTTER_TAR"
 
@@ -172,8 +177,8 @@ curl -fsSL https://fnm.vercel.app/install | bash
 
 FNM_PATH="/home/vscode/.local/share/fnm"
 if [ -d "$FNM_PATH" ]; then
-  export PATH="$FNM_PATH:$PATH"
-  eval "$(fnm env --shell bash)"
+	export PATH="$FNM_PATH:$PATH"
+	eval "$(fnm env --shell bash)"
 fi
 
 # ┌─────────────┐
@@ -182,38 +187,32 @@ fi
 
 ## Config
 
+# sanity
+mkdir -p ~/.claude
+
 # bind mounted ~/.claude/.credentials.json so need to update ~/.claude permissions
 sudo chown $USER ~/.claude
 sudo chgrp $USER ~/.claude
 
 # Copy statusline.sh staged by hostConfig.sh into the container
-if [ -f .devcontainer/ubuntu-flutter/statusline.sh ]; then
-  cp .devcontainer/ubuntu-flutter/statusline.sh ~/.claude/statusline.sh
-  rm .devcontainer/ubuntu-flutter/statusline.sh
+STATUSLINE_PATH='.devcontainer/ubuntu-flutter/statusline.sh'
+if [ -f "$STATUSLINE_PATH" ]; then
+	mv "$STATUSLINE_PATH" ~/.claude/statusline.sh
 fi
 
 # Configure statusline in user-level settings
 if [ -f ~/.claude/statusline.sh ]; then
-  mkdir -p ~/.claude
-  SETTINGS=~/.claude/settings.json
-  if [ -f "$SETTINGS" ]; then
-    # Merge statusLine into existing settings
-    jq '. + {"statusLine": {"type": "command", "command": "bash ~/.claude/statusline.sh"}}' "$SETTINGS" > "$SETTINGS.tmp" && mv "$SETTINGS.tmp" "$SETTINGS"
-  else
-    cat > "$SETTINGS" <<'EOSETTINGS'
-{
-  "statusLine": {
-    "type": "command",
-    "command": "bash ~/.claude/statusline.sh"
-  }
-}
-EOSETTINGS
-  fi
+	SETTINGS_PATH=~/.claude/settings.json
+	SETTINGS_JSON='{"statusLine": {"type": "command", "command": "bash ~/.claude/statusline.sh"}}'
+	if [ -f "$SETTINGS_PATH" ]; then
+		# Merge statusLine into existing settings
+		jq ". + $SETTINGS_JSON" "$SETTINGS_PATH" | sponge "$SETTINGS_PATH"
+	else
+		echo "$SETTINGS_JSON" > "$SETTINGS_PATH"
+	fi
 fi
 
-# sudo apt install -y moreutils > /dev/null
 # jq '. + {"hasCompletedOnboarding": true}' ~/.claude.json | sponge ~/.claude.json
-
 cat > ~/.claude.json <<EOF
 {
 	"hasCompletedOnboarding": true,
@@ -229,7 +228,7 @@ echo 'claude --permission-mode bypassPermissions' >> ~/.bash_history
 
 ## Install Claude Code
 
-curl -fsSL https://claude.ai/install.sh | bash
+curl -fsSL https://claude.ai/install.sh | bash -s 2.1.68  # old version should fix caching issues
 
 ## Claude Code Extensions
 
