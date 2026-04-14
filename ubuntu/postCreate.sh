@@ -2,15 +2,15 @@
 
 set -e
 
-# ┌─────┐
-# │ Act │ (run GitHub Actions locally)
-# └─────┘
+echo ┌─────┐
+echo │ Act │ # (run GitHub Actions locally)
+echo └─────┘
 
 curl -fsSL https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash -s -- -b /usr/local/bin
 
-# ┌──────────┐
-# │ Lefthook │
-# └──────────┘
+echo ┌──────────┐
+echo │ Lefthook │
+echo └──────────┘
 
 LEFTHOOK_VERSION=$(curl -fsSL https://api.github.com/repos/evilmartians/lefthook/releases/latest | grep -o '"tag_name": "v[^"]*"' | grep -o '[0-9][^"]*')
 LEFTHOOK_DEB=$(mktemp)
@@ -18,9 +18,9 @@ curl -fsSL -o "$LEFTHOOK_DEB" "https://github.com/evilmartians/lefthook/releases
 sudo dpkg -i "$LEFTHOOK_DEB"
 rm "$LEFTHOOK_DEB"
 
-# ┌──────┐
-# │ Deno │
-# └──────┘
+echo ┌──────┐
+echo │ Deno │
+echo └──────┘
 
 curl -fsSL https://deno.land/install.sh | sh -s -- -y
 DENO_PATH_LINE='export DENO_INSTALL="$HOME/.deno"
@@ -34,17 +34,17 @@ COMPLETIONS_DIR="$HOME/.local/share/bash-completion/completions"
 mkdir -p "$COMPLETIONS_DIR"
 deno completions bash > "$COMPLETIONS_DIR/deno"
 
-# ┌─────┐
-# │ Bun │
-# └─────┘
+echo ┌─────┐
+echo │ Bun │
+echo └─────┘
 
 curl -fsSL https://bun.sh/install | bash
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-# ┌─────┐
-# │ fnm │
-# └─────┘
+echo ┌─────┐
+echo │ fnm │
+echo └─────┘
 
 curl -fsSL https://fnm.vercel.app/install | bash
 
@@ -54,9 +54,9 @@ if [ -d "$FNM_PATH" ]; then
   eval "$(fnm env --shell bash)"
 fi
 
-# ┌─────────────┐
-# │ Claude Code │
-# └─────────────┘
+echo ┌─────────────┐
+echo │ Claude Code │
+echo └─────────────┘
 
 ## Config
 
