@@ -68,7 +68,7 @@ sudo chown $USER ~/.claude
 sudo chgrp $USER ~/.claude
 
 # Copy statusline.sh staged by hostConfig.sh into the container
-STATUSLINE_PATH='.devcontainer/ubuntu/statusline.sh'
+STATUSLINE_PATH='.devcontainer/ubuntu-flutter/statusline.sh'
 if [ -f "$STATUSLINE_PATH" ]; then
 	mv "$STATUSLINE_PATH" ~/.claude/statusline.sh
 fi
@@ -76,7 +76,17 @@ fi
 # Configure statusline in user-level settings
 if [ -f ~/.claude/statusline.sh ]; then
 	SETTINGS_PATH=~/.claude/settings.json
-	SETTINGS_JSON='{"statusLine": {"type": "command", "command": "bash ~/.claude/statusline.sh"}}'
+	SETTINGS_JSON=\
+'{
+	"env": {
+		"DISABLE_AUTOUPDATER": "1"
+	},
+	"statusLine": {
+		"type": "command",
+		"command": "bash ~/.claude/statusline.sh"
+	},
+	"skipDangerousModePermissionPrompt": true
+}'
 	if [ -f "$SETTINGS_PATH" ]; then
 		# Merge statusLine into existing settings
 		jq ". + $SETTINGS_JSON" "$SETTINGS_PATH" | sponge "$SETTINGS_PATH"
@@ -102,3 +112,6 @@ echo 'claude --permission-mode bypassPermissions' >> ~/.bash_history
 ## Install Claude Code
 
 curl -fsSL https://claude.ai/install.sh | bash -s 2.1.68  # old version should fix caching issues
+# see {"env": {"DISABLE_AUTOUPDATER": "1"}} in settings json for version pin
+
+## Claude Code Extensions
