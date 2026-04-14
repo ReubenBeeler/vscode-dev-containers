@@ -7,3 +7,7 @@ bun.lock
 CLAUDE.md
 node_modules/
 package.json
+
+# hostConfig.sh copies statusline from host; transient, not committed
+ubuntu/statusline.sh
+ubuntu-flutter/statusline.sh

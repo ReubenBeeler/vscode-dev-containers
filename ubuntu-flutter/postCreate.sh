@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -e
 
+sudo apt-get update -y > /dev/null
+# Hold tzdata so apt-get upgrade doesn't try to hard-link over the bind-mounted
+# timezone files from devcontainer feature match-host-time-zone
+sudo apt-mark hold tzdata
+sudo apt-get upgrade -y > /dev/null
+
 # ┌─────┐
 # │ Act │ (run GitHub Actions locally)
 # └─────┘
@@ -20,9 +26,6 @@ rm "$LEFTHOOK_DEB"
 # ┌─────────┐
 # │ Android │
 # └─────────┘
-
-sudo apt-get update -y > /dev/null
-sudo apt-get upgrade -y > /dev/null
 
 # install sponge
 sudo apt install -y moreutils > /dev/null
@@ -160,6 +163,23 @@ _export='export PATH="$PATH":"$HOME/.pub-cache/bin"'
 eval $_export
 echo "$_export" >> ~/.bashrc
 unset _export
+
+# ┌──────┐
+# │ Deno │
+# └──────┘
+
+curl -fsSL https://deno.land/install.sh | sh -s -- -y
+
+DENO_PATH_LINE='export DENO_INSTALL="$HOME/.deno"
+export PATH="$DENO_INSTALL/bin:$PATH"'
+grep -qF 'DENO_INSTALL' ~/.bashrc  || printf '\n%s\n' "$DENO_PATH_LINE" >> ~/.bashrc
+grep -qF 'DENO_INSTALL' ~/.profile || printf '\n%s\n' "$DENO_PATH_LINE" >> ~/.profile
+export DENO_INSTALL="$HOME/.deno"
+export PATH="$DENO_INSTALL/bin:$PATH"
+
+COMPLETIONS_DIR="$HOME/.local/share/bash-completion/completions"
+mkdir -p "$COMPLETIONS_DIR"
+deno completions bash > "$COMPLETIONS_DIR/deno"
 
 # ┌─────┐
 # │ Bun │

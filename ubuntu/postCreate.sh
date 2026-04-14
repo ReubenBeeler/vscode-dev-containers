@@ -18,6 +18,22 @@ curl -fsSL -o "$LEFTHOOK_DEB" "https://github.com/evilmartians/lefthook/releases
 sudo dpkg -i "$LEFTHOOK_DEB"
 rm "$LEFTHOOK_DEB"
 
+# ┌──────┐
+# │ Deno │
+# └──────┘
+
+curl -fsSL https://deno.land/install.sh | sh -s -- -y
+DENO_PATH_LINE='export DENO_INSTALL="$HOME/.deno"
+export PATH="$DENO_INSTALL/bin:$PATH"'
+grep -qF 'DENO_INSTALL' ~/.bashrc  || printf '\n%s\n' "$DENO_PATH_LINE" >> ~/.bashrc
+grep -qF 'DENO_INSTALL' ~/.profile || printf '\n%s\n' "$DENO_PATH_LINE" >> ~/.profile
+export DENO_INSTALL="$HOME/.deno"
+export PATH="$DENO_INSTALL/bin:$PATH"
+
+COMPLETIONS_DIR="$HOME/.local/share/bash-completion/completions"
+mkdir -p "$COMPLETIONS_DIR"
+deno completions bash > "$COMPLETIONS_DIR/deno"
+
 # ┌─────┐
 # │ Bun │
 # └─────┘
