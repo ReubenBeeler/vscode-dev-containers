@@ -252,7 +252,7 @@ EOF
 
 	## Install Claude Code
 
-	curl -fsSL https://claude.ai/install.sh | bash -s 2.1.68  # old version should fix caching issues
+	curl -fsSL https://claude.ai/install.sh | bash -s 2.1.98  # old version should fix caching issues
 	# see {"env": {"DISABLE_AUTOUPDATER": "1"}} in settings json for version pin
 
 	## Claude Code Extensions
