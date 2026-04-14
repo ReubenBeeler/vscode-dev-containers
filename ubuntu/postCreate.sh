@@ -52,7 +52,7 @@ sudo chown $USER ~/.claude
 sudo chgrp $USER ~/.claude
 
 # Copy statusline.sh staged by hostConfig.sh into the container
-STATUSLINE_PATH='.devcontainer/ubuntu-flutter/statusline.sh'
+STATUSLINE_PATH='.devcontainer/ubuntu/statusline.sh'
 if [ -f "$STATUSLINE_PATH" ]; then
 	mv "$STATUSLINE_PATH" ~/.claude/statusline.sh
 fi
