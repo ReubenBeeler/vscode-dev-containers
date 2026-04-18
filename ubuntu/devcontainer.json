@@ -21,5 +21,12 @@
 	},
 	// lifecycle scripts
 	"initializeCommand": "bash .devcontainer/ubuntu/hostConfig.sh",
-	"postCreateCommand": "bash .devcontainer/ubuntu/postCreate.sh"
+	"postCreateCommand": "bash .devcontainer/ubuntu/postCreate.sh",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"astro-build.astro-vscode"
+			]
+		}
+	}
 }
