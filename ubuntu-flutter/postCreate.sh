@@ -111,7 +111,8 @@ fi
 	echo 'apt installing linux toolchain...'
 	sudo apt-get install -y > /dev/null \
 		clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-14-dev \
-		mesa-utils xvfb
+		libsqlite3-dev mesa-utils xvfb \
+		openbox at-spi2-core dbus-x11 xdotool
 
 	# Grant access to GPU render nodes so eglinfo (used by flutter doctor) can
 	# query driver information. The host DRI devices are visible via --network=host
@@ -126,16 +127,40 @@ fi
 	Xvfb :99 -screen 0 1024x768x24 &>/dev/null &
 	export DISPLAY=:99
 
-	# Ensure Xvfb is running and DISPLAY is set in future shells so eglinfo (and Flutter Linux desktop apps) work in this headless container.
-	XVFB_ENV_BLOCK='
-	# Virtual X server for headless Flutter Linux desktop
+	# D-Bus session bus (required by AT-SPI2 accessibility registry).
+	# Must start before the MCP server so it inherits the bus address.
+	eval $(dbus-launch --sh-syntax)
+	export DBUS_SESSION_BUS_ADDRESS
+
+	# AT-SPI2 accessibility registry (enables MCP ui_tree for GTK apps)
+	/usr/libexec/at-spi2-registryd &>/dev/null &
+
+	# Openbox window manager (proper GTK window sizing/decorations on Xvfb)
+	DISPLAY=:99 openbox &>/dev/null &
+
+	# Ensure all headless desktop services are running in future shells.
+	LINUX_DESKTOP_ENV_BLOCK='
+	# Headless desktop environment for Flutter Linux desktop testing
 	if ! pgrep -x Xvfb >/dev/null 2>&1; then
 		Xvfb :99 -screen 0 1024x768x24 &>/dev/null &
 	fi
 	export DISPLAY=:99
+
+	if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
+		eval $(dbus-launch --sh-syntax)
+		export DBUS_SESSION_BUS_ADDRESS
+	fi
+
+	if ! pgrep -x at-spi2-registryd >/dev/null 2>&1; then
+		/usr/libexec/at-spi2-registryd &>/dev/null &
+	fi
+
+	if ! pgrep -x openbox >/dev/null 2>&1; then
+		openbox &>/dev/null &
+	fi
 	'
-	grep -qF 'Xvfb' ~/.bashrc  || echo -n "$XVFB_ENV_BLOCK" >> ~/.bashrc
-	grep -qF 'Xvfb' ~/.profile || echo -n "$XVFB_ENV_BLOCK" >> ~/.profile
+	grep -qF 'Xvfb' ~/.bashrc  || echo -n "$LINUX_DESKTOP_ENV_BLOCK" >> ~/.bashrc
+	grep -qF 'Xvfb' ~/.profile || echo -n "$LINUX_DESKTOP_ENV_BLOCK" >> ~/.profile
 
 	echo ┌────────┐
 	echo │ Chrome │
