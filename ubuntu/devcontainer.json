@@ -11,13 +11,15 @@
 	"mounts": [
 		"source=${localEnv:HOME}/.claude/.credentials.json,target=/home/vscode/.claude/.credentials.json,type=bind,consistency=cached"
 	],
-	// Let Docker containers bind Supabase ports; Codespaces auto-forwards on traffic.
+	// Supabase ports are served by Docker-in-Docker inside the container, so
+	// VS Code port-forwarding is not needed.  "ignore" prevents the host from
+	// claiming these ports when nothing is actively listening on them.
 	"portsAttributes": {
-		"54321": { "protocol": "http", "onAutoForward": "notify" },
-		"54322": { "onAutoForward": "silent" },
-		"54323": { "protocol": "http", "onAutoForward": "notify" },
-		"54324": { "protocol": "http", "onAutoForward": "silent" },
-		"54327": { "onAutoForward": "silent" }
+		"54321": { "onAutoForward": "ignore" },
+		"54322": { "onAutoForward": "ignore" },
+		"54323": { "onAutoForward": "ignore" },
+		"54324": { "onAutoForward": "ignore" },
+		"54327": { "onAutoForward": "ignore" }
 	},
 	// lifecycle scripts
 	"initializeCommand": "bash .devcontainer/ubuntu/hostConfig.sh",

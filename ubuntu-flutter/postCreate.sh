@@ -47,13 +47,8 @@
 		android-sdk-platform-tools-common \
 		openjdk-17-jdk libpulse0
 
-	# Grant the container user access to KVM for hardware-accelerated emulation.
-	# /dev/kvm is passed in via --device=/dev/kvm but its owning group (numeric)
-	# doesn't map to a named group inside the container. Using gpasswd alone is
-	# insufficient because group membership only takes effect in new login sessions,
-	# not the current shell running postCreate. Set world read/write so the
-	# emulator can use KVM immediately without requiring a re-login.
-	sudo chmod 666 /dev/kvm
+	# Allow hardware-accelerated emulation via /dev/kvm.
+	sudo usermod -aG kvm vscode
 
 	# Use the host's bind-mounted Android SDK at ~/.android/SDK
 	ANDROID_ENV_BLOCK='
@@ -64,6 +59,49 @@
 	eval "$ANDROID_ENV_BLOCK"
 	grep -qF 'ANDROID_HOME' ~/.bashrc  || echo -n "$ANDROID_ENV_BLOCK" >> ~/.bashrc
 	grep -qF 'ANDROID_HOME' ~/.profile || echo -n "$ANDROID_ENV_BLOCK" >> ~/.profile
+
+	echo ┌───────┐
+	echo │ udevd │ # automatic USB device node management
+	echo └───────┘
+
+	echo 'apt installing udev...'
+	sudo apt-get install -y udev > /dev/null
+
+	echo 'preparing udevd...'
+
+	sudo mkdir -p /dev/bus/usb
+	sudo /lib/systemd/systemd-udevd --daemon
+
+	# Override 51-android.rules MODE=0660 with world-accessible permissions.
+	echo 'SUBSYSTEM=="usb", MODE="0666"' | sudo tee /etc/udev/rules.d/99-usb-open-access.rules > /dev/null
+	sudo udevadm control --reload-rules
+
+	# Coldplug: create nodes for USB devices already present.
+	sudo udevadm trigger --subsystem-match=usb --action=add
+	sudo udevadm settle --timeout=5
+
+	# Remove stale nodes Docker snapshotted for since-unplugged devices.
+	for node in /dev/bus/usb/*/*; do
+		bus=$(basename "$(dirname "$node")" | sed 's/^0*//')
+		dev=$(basename "$node" | sed 's/^0*//')
+		found=false
+		for d in /sys/bus/usb/devices/*; do
+			[ "$(cat "$d/busnum" 2>/dev/null)" = "$bus" ] && \
+			[ "$(cat "$d/devnum" 2>/dev/null)" = "$dev" ] && { found=true; break; }
+		done
+		$found || sudo rm -f "$node"
+	done
+
+	# Ensure udevd stays running across new shell sessions.
+	UDEVD_ENV_BLOCK='
+# udevd for automatic USB device node management
+if ! pgrep -x systemd-udevd >/dev/null 2>&1; then
+	sudo /lib/systemd/systemd-udevd --daemon 2>/dev/null
+	sudo udevadm trigger --subsystem-match=usb --action=add 2>/dev/null
+fi
+'
+	grep -qF 'systemd-udevd' ~/.bashrc  || echo -n "$UDEVD_ENV_BLOCK" >> ~/.bashrc
+	grep -qF 'systemd-udevd' ~/.profile || echo -n "$UDEVD_ENV_BLOCK" >> ~/.profile
 
 	echo ┌───────────────────┐
 	echo │ Linux Development │

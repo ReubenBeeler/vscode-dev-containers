@@ -17,7 +17,8 @@
 	// container, so Flutter VM Service / hot reload work without extra config.
 	"runArgs": [
 		"--network=host",
-		"--device=/dev/kvm"
+		"--device=/dev/kvm",
+		"--device-cgroup-rule=c 189:* rwm"
 	],
 	// lifecycle scripts
 	"initializeCommand": "bash .devcontainer/ubuntu-flutter/hostConfig.sh",
