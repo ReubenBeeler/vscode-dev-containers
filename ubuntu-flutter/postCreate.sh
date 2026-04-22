@@ -48,6 +48,7 @@
 		openjdk-17-jdk libpulse0
 
 	# Allow hardware-accelerated emulation via /dev/kvm.
+	sudo groupadd -f kvm
 	sudo usermod -aG kvm vscode
 
 	# Use the host's bind-mounted Android SDK at ~/.android/SDK
