@@ -299,7 +299,7 @@ EOF
 	# mobile dev MCP server (https://github.com/AlexGladkov/claude-in-mobile)
 	claude mcp add --scope user --transport stdio mobile -- bunx -y claude-in-mobile
 	# dart MCP server (https://docs.flutter.dev/ai/mcp-server)
-	claude mcp add --transport stdio dart -- dart mcp-server
+	claude mcp add --scope user --transport stdio dart -- dart mcp-server
 
 
 	exit 0
