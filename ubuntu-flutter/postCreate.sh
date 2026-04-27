@@ -321,8 +321,8 @@ EOF
 
 	## Claude Code Extensions
 
-	# mobile dev MCP server (https://github.com/AlexGladkov/claude-in-mobile)
-	claude mcp add --scope user --transport stdio mobile -- bunx -y claude-in-mobile
+	# marionette MCP server (https://github.com/leancodepl/marionette_mcp)
+	claude mcp add --scope user --transport stdio marionette -- dart run marionette_mcp
 	# dart MCP server (https://docs.flutter.dev/ai/mcp-server)
 	claude mcp add --scope user --transport stdio dart -- dart mcp-server
 
