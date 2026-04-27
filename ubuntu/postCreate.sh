@@ -83,7 +83,8 @@ if [ -f ~/.claude/statusline.sh ]; then
 	},
 	"statusLine": {
 		"type": "command",
-		"command": "bash ~/.claude/statusline.sh"
+		"command": "bash ~/.claude/statusline.sh",
+		"refreshInterval": 3
 	},
 	"skipDangerousModePermissionPrompt": true
 }'
