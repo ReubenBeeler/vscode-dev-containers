@@ -20,6 +20,21 @@
 		"--device=/dev/kvm",
 		"--device-cgroup-rule=c 189:* rwm"
 	],
+	// Supabase ports are served by Docker-in-Docker inside the container, so
+	// VS Code port-forwarding is not needed.  "ignore" prevents VS Code from
+	// claiming these ports after supabase stops, which blocks the next start.
+	"portsAttributes": {
+		"54320": { "onAutoForward": "ignore" },
+		"54321": { "onAutoForward": "ignore" },
+		"54322": { "onAutoForward": "ignore" },
+		"54323": { "onAutoForward": "ignore" },
+		"54324": { "onAutoForward": "ignore" },
+		"54325": { "onAutoForward": "ignore" },
+		"54326": { "onAutoForward": "ignore" },
+		"54327": { "onAutoForward": "ignore" },
+		"54328": { "onAutoForward": "ignore" },
+		"54329": { "onAutoForward": "ignore" }
+	},
 	// lifecycle scripts
 	"initializeCommand": "bash .devcontainer/ubuntu-flutter/hostConfig.sh",
 	"postCreateCommand": "bash .devcontainer/ubuntu-flutter/postCreate.sh",
