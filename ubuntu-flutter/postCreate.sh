@@ -323,9 +323,11 @@ EOF
 	## Claude Code Extensions
 
 	# marionette MCP server (https://github.com/leancodepl/marionette_mcp)
-	claude mcp add --scope user --transport stdio marionette -- dart run marionette_mcp
+	claude mcp add --scope user marionette -- dart run marionette_mcp
+	# Chrome DevTools MCP server
+	claude mcp add --scope user chrome-devtools -- bunx chrome-devtools-mcp@latest --no-usage-statistics
 	# dart MCP server (https://docs.flutter.dev/ai/mcp-server)
-	claude mcp add --scope user --transport stdio dart -- dart mcp-server
+	claude mcp add --scope user dart -- dart mcp-server
 
 
 	exit 0
