@@ -330,5 +330,22 @@ EOF
 	claude mcp add --scope user dart -- dart mcp-server
 
 
+	# Wrap flutter to fix root-owned ephemeral files before clean
+	# (the dart MCP server can create root-owned .plugin_symlinks)
+	cat >> ~/.bashrc << 'FLUTTER_WRAPPER'
+
+flutter() {
+    if [ "$1" = "clean" ]; then
+        local ephemeral
+        for ephemeral in $(find . -path '*/flutter/ephemeral' -type d 2>/dev/null); do
+            if find "$ephemeral" -user root -print -quit 2>/dev/null | grep -q .; then
+                sudo chown -R "$USER:$USER" "$ephemeral"
+            fi
+        done
+    fi
+    command flutter "$@"
+}
+FLUTTER_WRAPPER
+
 	exit 0
 }
