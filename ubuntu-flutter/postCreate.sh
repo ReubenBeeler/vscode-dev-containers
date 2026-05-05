@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-{ # prevents execution from breaking due to concurrent modification
-	set -e
+{ # prevents execution from breaking from concurrent modification
+	set -euo pipefail
 
 	echo ┌──────────────────┐
 	echo │ System utilities │
@@ -201,7 +201,6 @@ fi
 
 	# Accept Android licenses via Flutter and run a sanity check
 	flutter doctor --android-licenses --no-version-check < /dev/null || true
-	flutter doctor --no-version-check || true
 
 	DART_ENV_BLOCK='
 	# Dart/Flutter packages
@@ -347,6 +346,10 @@ flutter() {
     command flutter "$@"
 }
 FLUTTER_WRAPPER
+
+	echo ┌─\────────────┐
+	echo │ ✅  Complete │
+	echo └─\────────────┘
 
 	exit 0
 }
