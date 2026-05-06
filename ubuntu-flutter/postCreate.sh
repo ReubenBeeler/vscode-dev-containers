@@ -48,8 +48,12 @@
 		openjdk-17-jdk libpulse0
 
 	# Allow hardware-accelerated emulation via /dev/kvm.
+	# usermod -aG only takes effect in new login sessions, so also open the
+	# device node directly so the current container session can use KVM
+	# immediately after postCreate without a rebuild.
 	sudo groupadd -f kvm
 	sudo usermod -aG kvm vscode
+	sudo chmod 666 /dev/kvm || true  # no-op if /dev/kvm absent (CI, non-KVM host)
 
 	# Use the host's bind-mounted Android SDK at ~/.android/SDK
 	ANDROID_ENV_BLOCK='
@@ -216,6 +220,13 @@ fi
 
 	curl -sL https://firebase.tools | bash
 	dart pub global activate flutterfire_cli
+
+	echo ┌────────┐
+	echo │ Python │
+	echo └────────┘
+
+	# uv
+	curl -LsSf https://astral.sh/uv/install.sh | sh
 
 	echo ┌──────┐
 	echo │ Deno │
