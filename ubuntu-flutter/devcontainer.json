@@ -2,23 +2,20 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
 	"name": "Ubuntu Flutter",
-	"image": "mcr.microsoft.com/devcontainers/base:noble",
+	// Pre-built image — see Dockerfile and rebuild-and-push.sh
+	// "image": "mcr.microsoft.com/devcontainers/base:noble",
+	"image": "localhost:5001/ubuntu-flutter:latest",
 	"features": {
-		"ghcr.io/hwaien/devcontainer-features/match-host-time-zone": {},
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
+		"ghcr.io/hwaien/devcontainer-features/match-host-time-zone": {}
 	},
 	"mounts": [
-		"source=${localEnv:HOME}/.claude/.credentials.json,target=/home/vscode/.claude/.credentials.json,type=bind,consistency=cached",
-		// Persist the ADB RSA key across container rebuilds so the phone doesn't need to re-authorize every time.
-		"source=${localEnv:HOME}/.android,target=/home/vscode/.android,type=bind,consistency=cached"
+		"source=${localEnv:HOME}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached"
 	],
-	// --network=host: the container shares the host's network namespace.
-	// ADB forward ports on the host are accessible at localhost inside the
-	// container, so Flutter VM Service / hot reload work without extra config.
 	"runArgs": [
-		"--network=host",
 		"--device=/dev/kvm",
-		"--device-cgroup-rule=c 189:* rwm"
+		"--device-cgroup-rule=c 189:* rwm",
+		"--volume=/sys:/sys:rw",
+		"--security-opt=apparmor=unconfined"
 	],
 	// Supabase ports are served by Docker-in-Docker inside the container, so
 	// VS Code port-forwarding is not needed.  "ignore" prevents VS Code from
@@ -35,10 +32,9 @@
 		"54328": { "onAutoForward": "ignore" },
 		"54329": { "onAutoForward": "ignore" }
 	},
-	// lifecycle scripts
-	"initializeCommand": "bash .devcontainer/ubuntu-flutter/hostConfig.sh",
+	"initializeCommand": "bash .devcontainer/ubuntu-flutter/ensure-image.sh",
 	"postCreateCommand": "bash .devcontainer/ubuntu-flutter/postCreate.sh",
-	// extensions
+	"postStartCommand": "bash .devcontainer/ubuntu-flutter/postStart.sh",
 	"customizations": {
 		"vscode": {
 			"extensions": [

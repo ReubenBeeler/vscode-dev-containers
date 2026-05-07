@@ -1,0 +1,9 @@
+{
+  "features": {
+    "ghcr.io/hwaien/devcontainer-features/match-host-time-zone": {
+      "version": "0.0.13",
+      "resolved": "ghcr.io/hwaien/devcontainer-features/match-host-time-zone@sha256:8fc253d728d0f94418ba863c7cd4ffe6c4fa95fc8356e781dea7d1554624bef6",
+      "integrity": "sha256:8fc253d728d0f94418ba863c7cd4ffe6c4fa95fc8356e781dea7d1554624bef6"
+    }
+  }
+}
