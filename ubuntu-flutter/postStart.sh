@@ -5,6 +5,24 @@
 { # prevents execution from breaking from concurrent modification
 	set -euo pipefail
 	
+	echo ┌─────┐
+	echo │ DNS │
+	echo └─────┘
+
+	# Docker generates /etc/resolv.conf with only the host's DNS server and no
+	# options.  This makes DNS fragile — a single dropped UDP packet on the
+	# Docker bridge/NAT path causes a 5-second hang, and 3 drops = 15 s failure.
+	# Fix: add fallback public DNS servers and tune resolver timeouts.
+	if ! grep -q 'single-request-reopen' /etc/resolv.conf 2>/dev/null; then
+		original_ns=$(grep -m1 '^nameserver' /etc/resolv.conf || echo "nameserver 192.168.85.1")
+		sudo tee /etc/resolv.conf >/dev/null <<-EOF
+		$original_ns
+		nameserver 8.8.8.8
+		nameserver 1.1.1.1
+		options single-request-reopen timeout:1 attempts:5
+		EOF
+	fi
+
 	echo ┌───────┐
 	echo │ udevd │
 	echo └───────┘
