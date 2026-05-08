@@ -6,7 +6,8 @@
 	// "image": "mcr.microsoft.com/devcontainers/base:noble",
 	"image": "localhost:5001/ubuntu-flutter:latest",
 	"features": {
-		"ghcr.io/hwaien/devcontainer-features/match-host-time-zone": {}
+		"ghcr.io/hwaien/devcontainer-features/match-host-time-zone": {},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {}
 	},
 	"mounts": [
 		"source=${localEnv:HOME}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached"

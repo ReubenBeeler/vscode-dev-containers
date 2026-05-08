@@ -1,23 +1,5 @@
 FROM mcr.microsoft.com/devcontainers/base:noble
 
-# Install Docker CE — replaces the docker-in-docker devcontainer feature,
-# which is devcontainer-CLI-specific and cannot be applied via plain docker build.
-RUN apt-get update \
-    && apt-get install -y ca-certificates curl gnupg \
-    && install -m 0755 -d /etc/apt/keyrings \
-    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
-       | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
-    && chmod a+r /etc/apt/keyrings/docker.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-       https://download.docker.com/linux/ubuntu noble stable" \
-       > /etc/apt/sources.list.d/docker.list \
-    && apt-get update \
-    && apt-get install -y \
-       docker-ce docker-ce-cli containerd.io \
-       docker-buildx-plugin docker-compose-plugin \
-    && apt-get clean && rm -rf /var/lib/apt/lists/* \
-    && usermod -aG docker vscode
-
 # Run post-build setup as vscode — installs SDKs and tools into the image.
 # postCreate.sh and postStart.sh are bind-mounted at runtime via devcontainer.json
 # into /opt/this-container/ (the entire Dockerfile directory, read-only).

@@ -1,5 +1,10 @@
 {
   "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "2.16.1",
+      "resolved": "ghcr.io/devcontainers/features/docker-in-docker@sha256:ce078b7bf7d9ef3bcb9813b32103795d8d72172446890b64772cbe1dec6baafd",
+      "integrity": "sha256:ce078b7bf7d9ef3bcb9813b32103795d8d72172446890b64772cbe1dec6baafd"
+    },
     "ghcr.io/hwaien/devcontainer-features/match-host-time-zone": {
       "version": "0.0.13",
       "resolved": "ghcr.io/hwaien/devcontainer-features/match-host-time-zone@sha256:8fc253d728d0f94418ba863c7cd4ffe6c4fa95fc8356e781dea7d1554624bef6",
