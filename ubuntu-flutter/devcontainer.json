@@ -14,6 +14,7 @@
 	"runArgs": [
 		"--device=/dev/kvm",
 		"--device-cgroup-rule=c 189:* rwm",
+		"--volume=/dev/bus/usb:/dev/bus/usb",
 		"--volume=/sys:/sys:rw",
 		"--security-opt=apparmor=unconfined"
 	],
