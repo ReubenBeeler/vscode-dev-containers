@@ -132,7 +132,8 @@ fi
 	sudo apt-get install -y > /dev/null \
 		clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-14-dev \
 		libsqlite3-dev mesa-utils xvfb \
-		openbox at-spi2-core dbus-x11 xdotool
+		openbox at-spi2-core dbus-x11 xdotool \
+		lld libsecret-1-dev gnome-keyring libsecret-tools
 	
 	export DISPLAY=:99
 

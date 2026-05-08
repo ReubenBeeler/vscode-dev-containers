@@ -86,6 +86,12 @@
 		DISPLAY=:99 openbox &>/dev/null &
 	fi
 
+	# Unlock gnome-keyring with an empty password so flutter_secure_storage
+	# can store/retrieve secrets (e.g. desktop app pairing secret).
+	if command -v gnome-keyring-daemon >/dev/null 2>&1; then
+		echo "" | gnome-keyring-daemon --unlock >/dev/null 2>&1 || true
+	fi
+
 	echo ┌─────────────────┐
 	echo │ Sanity check... │
 	echo └─────────────────┘
