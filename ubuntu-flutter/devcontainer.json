@@ -36,7 +36,7 @@
 		"54328": { "onAutoForward": "ignore" },
 		"54329": { "onAutoForward": "ignore" }
 	},
-	"initializeCommand": "bash .devcontainer/ubuntu-flutter/ensure-image.sh",
+	"initializeCommand": "bash .devcontainer/ubuntu-flutter/initialize.sh",
 	"postCreateCommand": "bash .devcontainer/ubuntu-flutter/postCreate.sh",
 	"postStartCommand": "bash .devcontainer/ubuntu-flutter/postStart.sh",
 	"customizations": {
