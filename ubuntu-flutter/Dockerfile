@@ -83,7 +83,12 @@ RUN bash <<'EOPOSTCREATE'
 	sdkmanager \
 		"platform-tools" \
 		"build-tools;34.0.0" \
+		"build-tools;35.0.0" \
+		"platforms;android-34" \
+		"platforms;android-35" \
 		"platforms;android-36" \
+		"ndk;28.2.13676358" \
+		"cmake;3.22.1" \
 		"emulator" \
 		"system-images;android-36;google_apis;x86_64"
 
