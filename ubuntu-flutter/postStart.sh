@@ -9,10 +9,7 @@
 	echo │ DNS │
 	echo └─────┘
 
-	# Docker generates /etc/resolv.conf with only the host's DNS server and no
-	# options.  This makes DNS fragile — a single dropped UDP packet on the
-	# Docker bridge/NAT path causes a 5-second hang, and 3 drops = 15 s failure.
-	# Fix: add fallback public DNS servers and tune resolver timeouts.
+	echo "==> Configuring fallback DNS servers and resolver timeouts..."
 	if ! grep -q 'single-request-reopen' /etc/resolv.conf 2>/dev/null; then
 		original_ns=$(grep -m1 '^nameserver' /etc/resolv.conf || echo "nameserver 192.168.85.1")
 		sudo tee /etc/resolv.conf >/dev/null <<-EOF
@@ -27,17 +24,20 @@
 	echo │ udevd │
 	echo └───────┘
 
+	echo "==> Creating /dev/bus/usb..."
 	sudo mkdir -p /dev/bus/usb
 
+	echo "==> Starting systemd-udevd daemon..."
 	if ! pgrep -x systemd-udevd >/dev/null 2>&1; then
 		sudo /lib/systemd/systemd-udevd --daemon
 	fi
 
+	echo "==> Reloading udev rules and triggering USB scan..."
 	sudo udevadm control --reload-rules
 	sudo udevadm trigger --subsystem-match=usb --action=add
 	sudo udevadm settle --timeout=5
 
-	# Remove stale nodes Docker snapshotted for since-unplugged devices.
+	echo "==> Removing stale USB device nodes..."
 	for node in /dev/bus/usb/*/*; do
 		bus=$(basename "$(dirname "$node")" | sed 's/^0*//')
 		dev=$(basename "$node" | sed 's/^0*//')
@@ -53,28 +53,23 @@
 	echo │ ADB │
 	echo └─────┘
 
+	echo "==> Setting ANDROID_HOME and PATH..."
 	export ANDROID_HOME="$HOME/.android/SDK"
 	export PATH="$ANDROID_HOME/platform-tools:$PATH"
 
-	# The host's ADB server is started by initialize.sh (runs on the host
-	# before the container).  With --network=host, the container reaches it
-	# on localhost:5037.  Just verify connectivity here.
+	echo "==> Verifying ADB connectivity to host server..."
 	adb devices
 
 	echo ┌──────────────────┐
 	echo │ Headless desktop │
 	echo └──────────────────┘
 
-	# Grant access to GPU render nodes so eglinfo can query driver information.
-	# The host DRI devices are visible via --network=host but their owning
-	# groups don't map inside the container.
+	echo "==> Granting access to GPU render nodes..."
 	if [ -d /dev/dri ]; then
 		sudo chmod 666 /dev/dri/* 2>/dev/null || true
 	fi
 
-	# Start a virtual X server so eglinfo's X11 platform probe doesn't hang
-	# (no display server in a headless container). Xvfb also enables running
-	# Flutter Linux desktop apps headlessly for testing.
+	echo "==> Starting Xvfb virtual X server on :99..."
 	if command -v Xvfb >/dev/null 2>&1 && ! pgrep -x Xvfb >/dev/null 2>&1; then
 		# Clean stale X server state from previous container lifecycle.
 		# Lock files and filesystem sockets can be simply removed.
@@ -87,10 +82,7 @@
 	fi
 	export DISPLAY=:99
 
-	# D-Bus session bus (required by AT-SPI2 accessibility registry).
-	# Must start before the MCP server so it inherits the bus address.
-	# Check both that the env var is set AND that the bus is reachable;
-	# a stale env var from a dead dbus-daemon must not skip re-launch.
+	echo "==> Starting D-Bus session bus..."
 	if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ] || \
 			! dbus-send --session --dest=org.freedesktop.DBus --print-reply \
 				/org/freedesktop/DBus org.freedesktop.DBus.Peer.Ping &>/dev/null; then
@@ -98,28 +90,25 @@
 		export DBUS_SESSION_BUS_ADDRESS
 	fi
 
-	# Unlock gnome-keyring with an empty password so flutter_secure_storage
-	# can store/retrieve secrets (e.g. desktop app pairing secret).
-	# Must run immediately after dbus-launch before triggering automatic
-	# dbus activiation of a locked keyring daemon
+	echo "==> Unlocking gnome-keyring with empty password..."
 	if command -v gnome-keyring-daemon >/dev/null 2>&1; then
-		echo "" | gnome-keyring-daemon --unlock --replace
+		pkill -9 -f gnome-keyring-daemon || true
+		echo "" | gnome-keyring-daemon --unlock > /dev/null
 	fi
 
-	# AT-SPI2 accessibility stack (enables MCP ui_tree for GTK apps).
-	# The bus launcher creates the accessibility bus socket; the registryd
-	# connects to it.  Both are needed — registryd alone fails without the bus.
+	echo "==> Starting AT-SPI2 accessibility bus launcher..."
 	if [ -x /usr/libexec/at-spi-bus-launcher ] && \
 			! pgrep -x at-spi-bus-lau >/dev/null 2>&1; then
 		DISPLAY=:99 /usr/libexec/at-spi-bus-launcher --launch-immediately &>/dev/null &
 		sleep 1
 	fi
+	echo "==> Starting AT-SPI2 registry daemon..."
 	if [ -x /usr/libexec/at-spi2-registryd ] && \
 			! pgrep -x at-spi2-registr >/dev/null 2>&1; then
 		DISPLAY=:99 /usr/libexec/at-spi2-registryd &>/dev/null &
 	fi
 
-	# Openbox window manager (proper GTK window sizing/decorations on Xvfb)
+	echo "==> Starting Openbox window manager..."
 	if command -v openbox >/dev/null 2>&1 && ! pgrep -x openbox >/dev/null 2>&1; then
 		DISPLAY=:99 openbox --replace &>/dev/null &
 	fi

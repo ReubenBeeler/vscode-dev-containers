@@ -8,6 +8,7 @@
 	echo │ Claude Code │
 	echo └─────────────┘
 
+	echo "==> Setting ownership of ~/.claude..."
 	sudo chown $USER ~/.claude
 	sudo chgrp $USER ~/.claude
 

@@ -8,6 +8,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # ── Docker image ──────────────────────────────────────────────────────────────
+echo "==> Ensuring Docker image is available..."
 bash "${SCRIPT_DIR}/ensure-image.sh"
 
 # ── ADB server ────────────────────────────────────────────────────────────────
