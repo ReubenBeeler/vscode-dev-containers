@@ -13,10 +13,12 @@
 		"source=${localEnv:HOME}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached"
 	],
 	"runArgs": [
+		"--network=host",
 		"--device=/dev/kvm",
 		"--device-cgroup-rule=c 189:* rwm",
 		"--volume=/dev/bus/usb:/dev/bus/usb",
-		"--volume=/sys:/sys:rw",
+		"--volume=/sys/bus:/sys/bus:ro",
+		"--volume=/sys/devices:/sys/devices:rw",
 		"--security-opt=apparmor=unconfined"
 	],
 	// Supabase ports are served by Docker-in-Docker inside the container, so

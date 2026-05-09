@@ -49,9 +49,9 @@ RUN bash <<'EOPOSTCREATE'
 	echo └─────────────────────┘
 
 	# Do NOT install the 'adb' apt package here. The SDK's platform-tools
-	# (installed via sdkmanager below) provides adb. A system adb with a different
-	# version will kill and restart the ADB server locally, breaking the connection
-	# to the host's server (shared via --network=host).
+	# (installed via sdkmanager below) provides adb. With --network=host the
+	# container shares the host's ADB server; a system adb with a mismatched
+	# version would kill-server and restart, breaking that shared connection.
 	echo 'apt installing android toolchain...'
 	sudo apt-get install -y > /dev/null \
 		android-sdk-platform-tools-common \

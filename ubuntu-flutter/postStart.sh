@@ -49,6 +49,18 @@
 		$found || sudo rm -f "$node"
 	done
 
+	echo ┌─────┐
+	echo │ ADB │
+	echo └─────┘
+
+	export ANDROID_HOME="$HOME/.android/SDK"
+	export PATH="$ANDROID_HOME/platform-tools:$PATH"
+
+	# With --network=host the container shares the host's ADB server.
+	# start-server is a no-op if a server is already running; it only
+	# fails (non-zero) if a server cannot be started at all.
+	adb start-server
+
 	echo ┌──────────────────┐
 	echo │ Headless desktop │
 	echo └──────────────────┘

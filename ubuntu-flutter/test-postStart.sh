@@ -62,6 +62,26 @@ else
 	fail "udev rule file /etc/udev/rules.d/99-usb-open-access.rules missing"
 fi
 
+# ── ADB ──────────────────────────────────────────────────────────────────────
+
+echo
+echo "── ADB ────────────────────────────────────────────────────────────────────"
+
+export ANDROID_HOME="$HOME/.android/SDK"
+export PATH="$ANDROID_HOME/platform-tools:$PATH"
+
+if command -v adb >/dev/null 2>&1; then
+	pass "adb binary found"
+else
+	fail "adb binary not found"
+fi
+
+if adb devices >/dev/null 2>&1; then
+	pass "adb server reachable"
+else
+	fail "adb server not reachable"
+fi
+
 # ── Headless desktop ───────────────────────────────────────────────────────────
 
 echo

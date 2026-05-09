@@ -36,7 +36,7 @@ done
 echo "==> Checking for ${FULL_TAG}..."
 HTTP_CODE=$(curl -so /dev/null -w '%{http_code}' \
     "http://${REGISTRY}/v2/${IMAGE_NAME}/manifests/${TAG}" \
-    -H "Accept: application/vnd.docker.distribution.manifest.v2+json")
+    -H "Accept: application/vnd.docker.distribution.manifest.v2+json, application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json")
 if [ "$HTTP_CODE" = "200" ]; then
     echo "==> Image found. Ready."
     exit 0

@@ -11,15 +11,11 @@
 	sudo chown $USER ~/.claude
 	sudo chgrp $USER ~/.claude
 
-	echo ┌──────────────────────────────────────────────┐
-	echo │ Disable IPv6 \(no connectivity in container\) │
-	echo └──────────────────────────────────────────────┘
+	echo ┌──────────────────────────────────────┐
+	echo │ Prefer IPv4 over IPv6 since v6 fails │
+	echo └──────────────────────────────────────┘
 
-	# The container has IPv6 interfaces but no IPv6 internet connectivity.
-	# Java/Gradle prefer IPv6 by default, causing DNS resolution failures
-	# (UnknownHostException) when downloading dependencies.
-	sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
-	sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+	echo "precedence ::ffff:0:0/96  100" | sudo tee -a /etc/gai.conf
 
 	echo ┌─\────────────────────────┐
 	echo │ ✅  Completed PostCreate │
