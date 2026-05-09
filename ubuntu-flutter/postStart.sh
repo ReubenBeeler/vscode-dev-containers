@@ -56,10 +56,10 @@
 	export ANDROID_HOME="$HOME/.android/SDK"
 	export PATH="$ANDROID_HOME/platform-tools:$PATH"
 
-	# With --network=host the container shares the host's ADB server.
-	# start-server is a no-op if a server is already running; it only
-	# fails (non-zero) if a server cannot be started at all.
-	adb start-server
+	# The host's ADB server is started by initialize.sh (runs on the host
+	# before the container).  With --network=host, the container reaches it
+	# on localhost:5037.  Just verify connectivity here.
+	adb devices
 
 	echo ┌──────────────────┐
 	echo │ Headless desktop │
@@ -76,7 +76,14 @@
 	# (no display server in a headless container). Xvfb also enables running
 	# Flutter Linux desktop apps headlessly for testing.
 	if command -v Xvfb >/dev/null 2>&1 && ! pgrep -x Xvfb >/dev/null 2>&1; then
-		Xvfb :99 -screen 0 1024x768x24 &>/dev/null &
+		# Clean stale X server state from previous container lifecycle.
+		# Lock files and filesystem sockets can be simply removed.
+		# Abstract sockets (@/tmp/.X11-unix/X99) are kernel-managed and
+		# cannot be removed from userspace, so -nolisten local avoids them.
+		rm -f /tmp/.X99-lock /tmp/.X11-unix/X99
+		Xvfb :99 -screen 0 1024x768x24 -nolisten local &>/dev/null &
+		# Wait for Xvfb to initialize before clients try to connect.
+		sleep 1
 	fi
 	export DISPLAY=:99
 
@@ -95,7 +102,7 @@
 
 	# Openbox window manager (proper GTK window sizing/decorations on Xvfb)
 	if command -v openbox >/dev/null 2>&1 && ! pgrep -x openbox >/dev/null 2>&1; then
-		DISPLAY=:99 openbox &>/dev/null &
+		DISPLAY=:99 openbox --replace &>/dev/null &
 	fi
 
 	# Unlock gnome-keyring with an empty password so flutter_secure_storage
