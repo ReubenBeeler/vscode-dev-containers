@@ -9,13 +9,15 @@ pass()   { echo "  ✅ $1"; ((PASS++)); }
 fail() { echo "  ❌ $1"; ((FAIL++)); }
 
 check_process() {
-	local proc="$1"
-	# Use -f (full command line) to handle process names longer than 15 chars
-	# (Linux truncates comm names at 15, breaking pgrep -x for longer names).
-	if pgrep -f "$proc" >/dev/null 2>&1; then
-		pass "$proc is running ($(pgrep -f "$proc" | head -1))"
+	local name="$1"
+	# Linux truncates comm names at 15 chars; pgrep -f matches the full
+	# command line but can false-positive on the calling shell itself.
+	# Use pgrep -x with the first 15 chars of the process name instead.
+	local comm="${name:0:15}"
+	if pgrep -x "$comm" >/dev/null 2>&1; then
+		pass "$name is running ($(pgrep -x "$comm" | head -1))"
 	else
-		fail "$proc is NOT running"
+		fail "$name is NOT running"
 	fi
 }
 

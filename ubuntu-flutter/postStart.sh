@@ -89,15 +89,26 @@
 
 	# D-Bus session bus (required by AT-SPI2 accessibility registry).
 	# Must start before the MCP server so it inherits the bus address.
-	if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then
+	# Check both that the env var is set AND that the bus is reachable;
+	# a stale env var from a dead dbus-daemon must not skip re-launch.
+	if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ] || \
+			! dbus-send --session --dest=org.freedesktop.DBus --print-reply \
+				/org/freedesktop/DBus org.freedesktop.DBus.Peer.Ping &>/dev/null; then
 		eval "$(dbus-launch --sh-syntax)"
 		export DBUS_SESSION_BUS_ADDRESS
 	fi
 
-	# AT-SPI2 accessibility registry (enables MCP ui_tree for GTK apps)
+	# AT-SPI2 accessibility stack (enables MCP ui_tree for GTK apps).
+	# The bus launcher creates the accessibility bus socket; the registryd
+	# connects to it.  Both are needed — registryd alone fails without the bus.
+	if [ -x /usr/libexec/at-spi-bus-launcher ] && \
+			! pgrep -x at-spi-bus-lau >/dev/null 2>&1; then
+		DISPLAY=:99 /usr/libexec/at-spi-bus-launcher --launch-immediately &>/dev/null &
+		sleep 1
+	fi
 	if [ -x /usr/libexec/at-spi2-registryd ] && \
-			! pgrep -f at-spi2-registryd >/dev/null 2>&1; then
-		/usr/libexec/at-spi2-registryd &>/dev/null &
+			! pgrep -x at-spi2-registr >/dev/null 2>&1; then
+		DISPLAY=:99 /usr/libexec/at-spi2-registryd &>/dev/null &
 	fi
 
 	# Openbox window manager (proper GTK window sizing/decorations on Xvfb)
