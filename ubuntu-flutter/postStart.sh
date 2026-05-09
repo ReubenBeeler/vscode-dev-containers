@@ -98,6 +98,14 @@
 		export DBUS_SESSION_BUS_ADDRESS
 	fi
 
+	# Unlock gnome-keyring with an empty password so flutter_secure_storage
+	# can store/retrieve secrets (e.g. desktop app pairing secret).
+	# Must run immediately after dbus-launch before triggering automatic
+	# dbus activiation of a locked keyring daemon
+	if command -v gnome-keyring-daemon >/dev/null 2>&1; then
+		echo "" | gnome-keyring-daemon --unlock --replace
+	fi
+
 	# AT-SPI2 accessibility stack (enables MCP ui_tree for GTK apps).
 	# The bus launcher creates the accessibility bus socket; the registryd
 	# connects to it.  Both are needed — registryd alone fails without the bus.
@@ -114,12 +122,6 @@
 	# Openbox window manager (proper GTK window sizing/decorations on Xvfb)
 	if command -v openbox >/dev/null 2>&1 && ! pgrep -x openbox >/dev/null 2>&1; then
 		DISPLAY=:99 openbox --replace &>/dev/null &
-	fi
-
-	# Unlock gnome-keyring with an empty password so flutter_secure_storage
-	# can store/retrieve secrets (e.g. desktop app pairing secret).
-	if command -v gnome-keyring-daemon >/dev/null 2>&1; then
-		echo "" | gnome-keyring-daemon --unlock >/dev/null 2>&1 || true
 	fi
 
 	echo ┌─────────────────┐
